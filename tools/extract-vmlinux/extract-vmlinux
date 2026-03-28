@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# extract-vmlinux - Extract the raw vmlinux from a compressed kernel image.
+# Adapted from the official Linux kernel script:
+# https://raw.githubusercontent.com/torvalds/linux/master/scripts/extract-vmlinux
+#
+# This standalone copy is used by lkf extract when kernel-devel is not installed.
+
+usage() {
+    echo "Usage: extract-vmlinux <vmlinuz>" >&2
+    exit 1
+}
+
+[[ $# -eq 0 ]] && usage
+[[ ! -f "$1" ]] && { echo "File not found: $1" >&2; exit 1; }
+
+# Decompress function: try each format at each offset
+try_decompress() {
+    local magic="$1" skip="$2" decompress="$3"
+    local pos
+
+    # Find all occurrences of the magic bytes
+    pos=$(grep -boa "${magic}" "$img" | cut -d: -f1)
+    for p in ${pos}; do
+        p=$((p + skip))
+        if dd if="$img" bs=1 skip="${p}" 2>/dev/null | \
+           eval "${decompress}" > "${tmp}" 2>/dev/null; then
+            if file "${tmp}" | grep -q ELF; then
+                cat "${tmp}"
+                exit 0
+            fi
+        fi
+    done
+}
+
+img="$1"
+tmp=$(mktemp /tmp/vmlinux.XXXXXX)
+trap "rm -f ${tmp}" EXIT
+
+# Try each compression format
+try_decompress $'\x1f\x8b\x08'         0  'gzip -dc'
+try_decompress $'\xfd\x37\x7a\x58\x5a\x00' 0  'xz -dc'
+try_decompress 'BZh'                   0  'bzip2 -dc'
+try_decompress $'\x89\x4c\x5a'        0  'lzop -dc'
+try_decompress $'\x02\x21\x4c\x18'    0  'lz4 -dc'
+try_decompress $'\x28\xb5\x2f\xfd'    0  'zstd -dc'
+try_decompress $'\x5d\x00\x00\x00'    0  'lzma -dc'
+
+echo "Cannot extract vmlinux from $img" >&2
+exit 1

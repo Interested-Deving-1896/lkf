@@ -1,0 +1,19 @@
+# Build artifacts
+build/
+downloads/
+*.deb
+*.rpm
+*.tar.gz
+*.tar.xz
+*.tar.bz2
+
+# Compiled optional tools
+tools/kdress/kdress
+tools/unzboot/unzboot
+
+# User profiles
+# (intentionally not ignored - users may want to commit their profiles)
+
+# Temp files
+*.tmp
+*.bak
