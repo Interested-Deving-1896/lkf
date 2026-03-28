@@ -51,6 +51,8 @@ COMMANDS:
   dkms        Manage DKMS modules alongside a kernel build
   profile     List, create, or switch named build profiles
   ci          Emit CI workflow files (GitHub Actions, GitLab CI, Forgejo)
+  kbuild      Kbuild/Kconfig standalone interface (modules, config, symbols)
+  xm          Cross-compile manager: arch × compiler matrix
   info        Show detected host/target environment
 
 Run 'lkf <command> --help' for command-specific options.
@@ -110,6 +112,7 @@ main() {
     case "${cmd}" in
         build)   cmd_build "$@" ;;
         remix)   cmd_remix "$@" ;;
+        kbuild)  cmd_kbuild "$@" ;;
         config)  cmd_config "$@" ;;
         patch)   cmd_patch "$@" ;;
         initrd)  cmd_initrd "$@" ;;
@@ -129,6 +132,7 @@ main() {
 # Lazy-load command modules
 cmd_build()   { source "${LKF_ROOT}/core/build.sh";   build_main "$@"; }
 cmd_remix()   { source "${LKF_ROOT}/core/remix.sh";   remix_main "$@"; }
+cmd_kbuild()  { source "${LKF_ROOT}/core/kbuild.sh";  kbuild_main "$@"; }
 cmd_config()  { source "${LKF_ROOT}/core/config.sh";  config_main "$@"; }
 cmd_patch()   { source "${LKF_ROOT}/core/patch.sh";   patch_main "$@"; }
 cmd_initrd()  { source "${LKF_ROOT}/core/initrd.sh";  initrd_main "$@"; }
