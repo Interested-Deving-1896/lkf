@@ -67,6 +67,7 @@ check:
 	@bash tests/test_install.sh
 	@bash tests/test_toolchain.sh
 	@bash tests/test_profile.sh
+	@bash tests/test_ci.sh
 	@echo "All tests passed."
 
 lint:
