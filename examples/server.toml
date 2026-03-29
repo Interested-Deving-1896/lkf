@@ -1,0 +1,31 @@
+# examples/server.toml — Server kernel: EEVDF scheduler, no gaming patches
+
+[remix]
+name        = "server"
+version     = "6.12"
+flavor      = "tkg"
+arch        = "x86_64"
+description = "Server: EEVDF scheduler, Clear Linux patches, no gaming extras"
+
+[build]
+llvm         = false
+lto          = "none"
+threads      = 0
+config       = "defconfig"
+target       = "server"
+output       = "deb"
+localversion = "-tkg-server"
+
+[tkg]
+cpusched = "eevdf"
+ntsync   = false
+fsync    = false
+clear    = true
+acs      = false
+openrgb  = false
+o3       = false
+zenify   = true
+
+[output]
+build_dir    = "build/server"
+download_dir = "downloads"

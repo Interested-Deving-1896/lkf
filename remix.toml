@@ -24,6 +24,18 @@ files = []
 [cross]
 prefix = ""
 
+# [tkg] section is only used when [remix] flavor = "tkg"
+# Run: lkf patch fetch --version 6.12 --set tkg  (before building)
+[tkg]
+cpusched = "eevdf"   # bore | eevdf | cfs | bmq | pds
+ntsync   = false     # NTsync (Wine/Proton performance)
+fsync    = true      # Fsync legacy via futex_waitv
+clear    = true      # Clear Linux performance patches
+acs      = false     # ACS IOMMU override (GPU passthrough)
+openrgb  = false     # OpenRGB kernel support
+o3       = false     # O3 + per-CPU-arch optimizations
+zenify   = true      # TkG base tweaks (glitched-base)
+
 [output]
 build_dir    = "build"
 download_dir = "downloads"

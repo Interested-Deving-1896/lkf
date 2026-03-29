@@ -249,6 +249,17 @@ remix_main() {
     patch_sets="$(remix_get patches sets "")"
     patch_files="$(remix_get patches files "")"
 
+    # ── Read tkg fields (only meaningful when flavor = tkg) ───────────────────
+    local tkg_cpusched tkg_ntsync tkg_fsync tkg_clear tkg_acs tkg_openrgb tkg_o3 tkg_zenify
+    tkg_cpusched="$(remix_get tkg cpusched "eevdf")"
+    tkg_ntsync="$(remix_get tkg ntsync "0")"
+    tkg_fsync="$(remix_get tkg fsync "1")"
+    tkg_clear="$(remix_get tkg clear "1")"
+    tkg_acs="$(remix_get tkg acs "0")"
+    tkg_openrgb="$(remix_get tkg openrgb "0")"
+    tkg_o3="$(remix_get tkg o3 "0")"
+    tkg_zenify="$(remix_get tkg zenify "1")"
+
     # ── Read cross fields ─────────────────────────────────────────────────────
     local cross_prefix
     cross_prefix="$(remix_get cross prefix "")"
@@ -273,6 +284,18 @@ remix_main() {
     [[ -n "${arch}" ]]         && cmd+=(--arch "${arch}")
     [[ "${llvm}" == "1" ]]     && cmd+=(--llvm)
     [[ "${lto}" != "none" ]]   && cmd+=(--lto "${lto}")
+
+    # TKG options — only emitted when flavor is tkg
+    if [[ "${flavor}" == "tkg" ]]; then
+        cmd+=(--tkg-cpusched "${tkg_cpusched}")
+        [[ "${tkg_ntsync}"  == "1" ]] && cmd+=(--tkg-ntsync)
+        [[ "${tkg_fsync}"   == "0" ]] && cmd+=(--tkg-no-fsync)
+        [[ "${tkg_clear}"   == "0" ]] && cmd+=(--tkg-no-clear)
+        [[ "${tkg_acs}"     == "1" ]] && cmd+=(--tkg-acs)
+        [[ "${tkg_openrgb}" == "1" ]] && cmd+=(--tkg-openrgb)
+        [[ "${tkg_o3}"      == "1" ]] && cmd+=(--tkg-o3)
+        [[ "${tkg_zenify}"  == "0" ]] && cmd+=(--tkg-no-zenify)
+    fi
     [[ -n "${localversion}" ]] && cmd+=(--localversion "${localversion}")
     [[ -n "${kcflags}" ]]      && cmd+=(--kcflags "${kcflags}")
     [[ -n "${cross_prefix}" ]] && cmd+=(--cross "${cross_prefix}")
@@ -300,6 +323,9 @@ remix_main() {
     lkf_info "  compiler: $([ "${llvm}" = "1" ] && echo "clang (LLVM)" || echo "gcc") | lto=${lto}"
     lkf_info "  config  : ${config_src} | target=${target}"
     [[ -n "${patch_sets}" ]] && lkf_info "  patches : ${patch_sets}"
+    if [[ "${flavor}" == "tkg" ]]; then
+        lkf_info "  tkg     : cpusched=${tkg_cpusched} ntsync=${tkg_ntsync} fsync=${tkg_fsync} clear=${tkg_clear} acs=${tkg_acs} openrgb=${tkg_openrgb} o3=${tkg_o3} zenify=${tkg_zenify}"
+    fi
     lkf_info "  output  : ${build_dir}/ (format=${output_fmt:-auto})"
 
     if [[ "${dry_run}" -eq 1 ]]; then

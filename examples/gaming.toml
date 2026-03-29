@@ -1,0 +1,49 @@
+# examples/gaming.toml — Gaming desktop kernel using linux-tkg
+#
+# Before building, fetch the tkg patch set:
+#   lkf patch fetch --version 6.12 --set tkg
+#
+# Build:
+#   lkf remix --file examples/gaming.toml
+#
+# Dry run:
+#   lkf remix --file examples/gaming.toml --dry-run
+
+[remix]
+name        = "gaming"
+version     = "6.12"
+flavor      = "tkg"
+arch        = "x86_64"
+description = "Gaming desktop: BORE scheduler, NTsync, Clear Linux patches, LLVM LTO"
+
+[build]
+llvm         = true
+lto          = "thin"
+threads      = 0           # 0 = nproc
+config       = "defconfig"
+target       = "desktop"
+output       = "deb"
+localversion = "-tkg-gaming"
+
+[tkg]
+cpusched = "bore"    # BORE scheduler — best for gaming workloads
+ntsync   = true      # NTsync: significant Wine/Proton latency improvement
+fsync    = true      # Fsync legacy (fallback for older Wine versions)
+clear    = true      # Clear Linux: scheduler + memory performance patches
+acs      = false     # Enable if you need GPU passthrough via VFIO
+openrgb  = false     # Enable for OpenRGB kernel-level LED control
+o3       = true      # O3 + native CPU optimizations (build on target machine)
+zenify   = true      # TkG base tweaks (glitched-base)
+
+[patches]
+sets  = []
+files = []
+
+[cross]
+prefix = ""
+
+[output]
+build_dir    = "build/gaming"
+download_dir = "downloads"
+clean_after  = false
+remove_after = false
