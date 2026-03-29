@@ -110,18 +110,38 @@ Fetch, configure, patch, and compile a kernel.
 lkf build --version 6.12 [options]
 
 Key options:
-  --flavor      mainline | xanmod | cachyos | zen | rt | android | custom
+  --flavor      mainline | xanmod | cachyos | zen | rt | tkg | android | custom
   --arch        x86_64 | aarch64 | arm | riscv64  [host arch]
   --cross       Cross-compiler prefix (e.g. aarch64-linux-gnu-)
   --llvm        Use Clang/LLVM (LLVM=1 LLVM_IAS=1)
   --lto         none | thin | full
   --config      defconfig | localyesconfig | localmodconfig | <file>
-  --patch-set   aufs | rt | xanmod | cachyos
+  --patch-set   aufs | rt | xanmod | cachyos | tkg
   --output      deb | rpm | pkg.tar.zst | tar.gz | efi-unified | android-boot
   --target      desktop | server | android | embedded | appliance | debug
   --stop-after  download | extract | patch | config | build | install
   --verify-gpg  Verify kernel.org tarball GPG signature
 ```
+
+**tkg flavor** — applies the [Frogging-Family/linux-tkg](https://github.com/Frogging-Family/linux-tkg)
+patch stack. Fetch patches first, then build:
+
+```bash
+lkf patch fetch --version 6.12 --set tkg
+lkf build --version 6.12 --flavor tkg --tkg-cpusched bore --tkg-ntsync --llvm --lto thin
+
+# tkg-specific flags:
+#   --tkg-cpusched  bore | eevdf | cfs | bmq | pds  [eevdf]
+#   --tkg-ntsync    NTsync (Wine/Proton performance)
+#   --tkg-fsync     Fsync via futex_waitv  [on by default]
+#   --tkg-clear     Clear Linux performance patches  [on by default]
+#   --tkg-acs       ACS IOMMU override (GPU passthrough)
+#   --tkg-openrgb   OpenRGB SMBus patch
+#   --tkg-o3        -O3 optimisation patch
+#   --tkg-zenify    Zen kernel tweaks
+```
+
+Or use a remix descriptor (see `lkf remix`) to encode all options in a file.
 
 ### `lkf config`
 
@@ -137,6 +157,42 @@ lkf config set      --file .config --option CONFIG_PREEMPT --value y
 lkf config diff     --a old.config --b new.config
 ```
 
+### `lkf remix`
+
+Build a kernel from a `remix.toml` descriptor — a single file that encodes
+version, flavor, compiler flags, patch sets, and tkg options.
+
+```
+lkf remix [--file kernels/gaming.toml] [--dry-run] [--stop-after config]
+```
+
+```toml
+# remix.toml
+[remix]
+name    = "gaming"
+version = "6.12"
+flavor  = "tkg"
+arch    = "x86_64"
+
+[build]
+llvm   = true
+lto    = "thin"
+target = "desktop"
+output = "deb"
+
+[tkg]
+cpusched = "bore"   # bore | eevdf | cfs | bmq | pds
+ntsync   = true
+fsync    = true
+clear    = true
+o3       = true
+
+[patches]
+sets = ["cachyos"]
+```
+
+See `examples/gaming.toml` and `examples/server.toml` for complete examples.
+
 ### `lkf patch`
 
 Apply patch sets to a kernel source tree.
@@ -145,9 +201,10 @@ Apply patch sets to a kernel source tree.
 lkf patch list
 lkf patch apply --set aufs --source-dir /path/to/linux
 lkf patch apply --file my.patch --source-dir /path/to/linux
+lkf patch fetch  --version 6.12 --set tkg --output patches/tkg
 ```
 
-Built-in patch sets: `aufs`, `rt`, `xanmod`, `cachyos`, `zen4-clang`
+Built-in patch sets: `aufs`, `rt`, `xanmod`, `cachyos`, `zen4-clang`, `tkg`
 
 ### `lkf initrd`
 
@@ -224,7 +281,44 @@ lkf profile use xanmod-desktop --version 6.12
 ```
 
 Built-in profiles: `desktop`, `server`, `android`, `debug`, `embedded`,
-`xanmod-desktop`, `puppy`
+`xanmod-desktop`, `puppy`, `tkg-gaming`, `tkg-bore`, `tkg-server`
+
+### `lkf kbuild`
+
+Kbuild/Kconfig standalone interface — build out-of-tree modules, run
+configurators, and extract Kconfig symbols without a full kernel build.
+
+```
+lkf kbuild module   --src ./my_module [--kdir /usr/src/linux-6.12] [--llvm]
+lkf kbuild config   --kconfig ./Kconfig --tool menuconfig
+lkf kbuild defconfig --kconfig ./Kconfig --out ./
+lkf kbuild validate --config .config --kconfig ./Kconfig
+lkf kbuild symbols  --kdir /usr/src/linux-6.12 [--filter preempt]
+lkf kbuild info     [--arch aarch64] [--llvm] [--cross aarch64-linux-gnu-]
+```
+
+### `lkf xm`
+
+Cross-compile matrix runner — build (or stop-after any stage) across an
+arch × compiler matrix and print a summary table.
+
+```
+lkf xm --version 6.12 --arch x86_64,aarch64,arm,riscv64 --cc gcc,clang
+lkf xm --version 6.12 --arch x86_64,aarch64 --stop-after config   # fast config check
+lkf xm --version 6.12 --arch x86_64,aarch64 --parallel 4          # concurrent builds
+lkf xm --version 6.12 --arch x86_64,aarch64 --dry-run             # preview matrix
+```
+
+Output example:
+```
+arch \ cc     gcc           clang
+────────────────────────────────────
+x86_64        PASS (42s)    PASS (38s)
+aarch64       PASS (51s)    SKIP
+arm           FAIL          SKIP
+
+Summary: 3 passed  1 failed  2 skipped
+```
 
 ### `lkf ci`
 
@@ -258,7 +352,10 @@ lkf/
 │   ├── toolchain.sh          # Dependency installation (all distros)
 │   ├── build.sh              # Fetch → patch → configure → compile pipeline
 │   ├── config.sh             # .config management (generate/merge/validate/convert)
-│   ├── patch.sh              # Patch set application
+│   ├── patch.sh              # Patch set application (incl. linux-tkg stack)
+│   ├── remix.sh              # remix.toml parser and build dispatcher
+│   ├── kbuild.sh             # Kbuild/Kconfig standalone interface
+│   ├── xm.sh                 # Arch × compiler matrix runner
 │   ├── initrd.sh             # initramfs builder + boot symlinks
 │   ├── image.sh              # EFI unified, Android boot.img, firmware packaging
 │   ├── install.sh            # Kernel installation + bootloader update
@@ -267,14 +364,15 @@ lkf/
 │   ├── dkms.sh               # DKMS module management
 │   └── profile.sh            # Named build profile management
 ├── ci/
-│   └── ci.sh                 # GitHub Actions workflow generator
+│   └── ci.sh                 # CI workflow generator (GitHub Actions, GitLab, Forgejo)
 ├── config/
 │   └── profiles/             # Config fragments per target profile
 │       ├── desktop.config
 │       ├── server.config
 │       ├── debug.config
 │       ├── android.config
-│       └── embedded.config
+│       ├── embedded.config
+│       └── tkg-gaming.config # CONFIG_NTSYNC, HZ_1000, PREEMPT, BBR
 ├── profiles/                 # Named build profiles (.profile files)
 │   ├── desktop.profile
 │   ├── server.profile
@@ -282,16 +380,31 @@ lkf/
 │   ├── debug.profile
 │   ├── embedded.profile
 │   ├── xanmod-desktop.profile
-│   └── puppy.profile
+│   ├── puppy.profile
+│   ├── tkg-gaming.profile    # bore + ntsync + llvm
+│   ├── tkg-bore.profile      # bore scheduler, no ntsync
+│   └── tkg-server.profile    # eevdf, server target
 ├── patches/                  # Local patch sets (place .patch files here)
+│   ├── tkg/                  # linux-tkg patches (populated by lkf patch fetch)
 │   └── <set-name>/           # One directory per named patch set
+├── examples/
+│   ├── gaming.toml           # tkg + bore + ntsync + llvm remix descriptor
+│   └── server.toml           # eevdf + no-fsync server remix descriptor
+├── nix/
+│   ├── shell.nix             # nix-shell environment
+│   ├── flake.nix             # Nix flake
+│   └── README.md             # NixOS usage notes
 ├── tools/
 │   ├── extract-vmlinux/      # Standalone extract-vmlinux script
 │   ├── kdress/               # elfmaster/kdress (build separately)
 │   └── unzboot/              # eballetbo/unzboot (build separately)
 └── tests/
     ├── test_detect.sh
-    └── test_config.sh
+    ├── test_config.sh
+    ├── test_integration.sh
+    ├── test_tkg.sh
+    ├── test_kbuild.sh
+    └── test_xm.sh
 ```
 
 ---
@@ -331,6 +444,28 @@ lkf/
 1. Create a directory: `patches/<your-set-name>/`
 2. Place `.patch` or `.diff` files inside (applied in sort order)
 3. Use it: `lkf build --version 6.12 --patch-set <your-set-name>`
+
+To fetch the linux-tkg patch set for a specific kernel version:
+
+```bash
+lkf patch fetch --version 6.12 --set tkg
+# patches land in patches/tkg/
+```
+
+---
+
+## Using remix.toml
+
+A `remix.toml` file captures a complete build configuration. Commit it
+alongside your kernel configs to make builds reproducible:
+
+```bash
+lkf remix --dry-run          # verify what would be built
+lkf remix                    # run the build
+lkf remix --stop-after config  # configure only
+```
+
+See `examples/gaming.toml` and `examples/server.toml` for annotated examples.
 
 ---
 
