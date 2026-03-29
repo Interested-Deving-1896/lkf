@@ -61,6 +61,7 @@ initrd_cmd_build() {
     if [[ "${debootstrap}" -eq 1 ]]; then
         initrd_build_debootstrap "${suite}" "${arch}" "${output}"
     elif [[ -n "${config_file}" ]]; then
+        [[ -f "${config_file}" ]] || lkf_die "Config file not found: ${config_file}"
         initrd_build_from_config "${config_file}" "${output}" "${compression}"
     else
         lkf_die "Specify --config <file> or --debootstrap"
