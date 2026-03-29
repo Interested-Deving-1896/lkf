@@ -22,7 +22,7 @@ usage() {
     local code="${1:-0}"
     echo "Usage: $0 --version <kver> [--set <set>] [--dir <dir>]"
     echo "  --version  Kernel version, e.g. 6.6.30"
-    echo "  --set      Patch set: aufs, rt, xanmod, cachyos, all (default: all)"
+    echo "  --set      Patch set: aufs, rt, xanmod, cachyos, tkg, all (default: all)"
     echo "  --dir      Output directory (default: script directory)"
     exit "${code}"
 }
@@ -42,7 +42,7 @@ done
 
 # Expand "all"
 if [[ " ${SETS[*]} " == *" all "* ]]; then
-    SETS=(aufs rt xanmod cachyos)
+    SETS=(aufs rt xanmod cachyos tkg)
 fi
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -167,6 +167,42 @@ fetch_xanmod() {
     done <<< "$urls"
 }
 
+fetch_tkg() {
+    local dir="${PATCHES_DIR}/tkg"
+    mkdir -p "$dir"
+
+    # linux-tkg patches live in linux-tkg-patches/<major>.<minor>/
+    local branch="${KMAJ}.${KMIN}"
+    local api_url="https://api.github.com/repos/Frogging-Family/linux-tkg/contents/linux-tkg-patches/${branch}"
+    log "Fetching linux-tkg patch list for ${branch} ..."
+
+    local listing
+    listing=$(curl -fsSL --retry 3 "$api_url" 2>/dev/null || true)
+    if [[ -z "$listing" ]]; then
+        warn "Could not reach linux-tkg patch index for ${branch}"
+        return 0
+    fi
+
+    # Download all .patch files in the version directory
+    local urls
+    urls=$(echo "$listing" | grep -oP '"download_url":\s*"\K[^"]+\.patch' || true)
+
+    if [[ -z "$urls" ]]; then
+        warn "No tkg patches found for ${branch}"
+        return 0
+    fi
+
+    local count=0
+    while IFS= read -r url; do
+        local fname
+        fname=$(basename "$url")
+        download "$url" "${dir}/${fname}"
+        count=$((count + 1))
+    done <<< "$urls"
+
+    log "tkg: ${count} patches ready in ${dir}/"
+}
+
 fetch_cachyos() {
     local dir="${PATCHES_DIR}/cachyos"
     mkdir -p "$dir"
@@ -206,6 +242,7 @@ for set in "${SETS[@]}"; do
         aufs)    fetch_aufs ;;
         xanmod)  fetch_xanmod ;;
         cachyos) fetch_cachyos ;;
+        tkg)     fetch_tkg ;;
         *) warn "Unknown patch set: $set (skipping)" ;;
     esac
 done

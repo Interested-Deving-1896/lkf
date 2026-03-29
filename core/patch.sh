@@ -22,9 +22,10 @@ EXAMPLES:
   lkf patch apply --set aufs --source-dir /path/to/linux
   lkf patch apply --file my.patch --source-dir /path/to/linux
   lkf patch list
-  lkf patch fetch --version 6.6.130              # fetch all sets
-  lkf patch fetch --version 6.6.130 --set rt     # fetch RT only
-  lkf patch fetch --version 6.6.130 --set cachyos --dir /tmp/patches
+  lkf patch fetch --version 6.12                       # fetch all sets
+  lkf patch fetch --version 6.12 --set rt              # fetch RT only
+  lkf patch fetch --version 6.12 --set tkg             # fetch linux-tkg gaming patches
+  lkf patch fetch --version 6.12 --set cachyos --dir /tmp/patches
 EOF
 }
 

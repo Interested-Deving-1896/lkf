@@ -58,3 +58,23 @@ upstream patch sets, in lexicographic order.
 | rt       | https://cdn.kernel.org/pub/linux/kernel/projects/rt/ | PREEMPT_RT       |
 | xanmod   | https://github.com/xanmod/linux-patches     | Latency + scheduler tweaks   |
 | cachyos  | https://github.com/CachyOS/kernel-patches   | BORE/EEVDF scheduler patches |
+| tkg      | https://github.com/Frogging-Family/linux-tkg | Gaming/desktop: BORE, BMQ, PDS, NTsync, Clear Linux, ACS override, OpenRGB |
+
+### tkg patch files (6.12 example)
+
+| File                                    | Controlled by          | Purpose                              |
+|-----------------------------------------|------------------------|--------------------------------------|
+| `0001-bore.patch`                       | `_cpusched=bore`       | BORE scheduler                       |
+| `0002-clear-patches.patch`              | `_clear_patches=true`  | Clear Linux performance patches      |
+| `0003-glitched-base.patch`              | always                 | Base TkG tweaks (mm, sched, net)     |
+| `0003-glitched-cfs.patch`              | `_cpusched=cfs`        | CFS/EEVDF glitched additions         |
+| `0003-glitched-eevdf-additions.patch`   | `_cpusched=eevdf`      | EEVDF extra tweaks                   |
+| `0005-glitched-pds.patch`              | `_cpusched=pds`        | PDS scheduler (Project C)            |
+| `0006-add-acs-overrides_iommu.patch`    | `_acs_override=true`   | ACS IOMMU override for GPU passthrough |
+| `0007-v*.ntsync.patch`                 | `_ntsync=true`         | NTsync (Wine/Proton performance)     |
+| `0007-v*.fsync_legacy*.patch`          | `_fsync_legacy=true`   | Fsync legacy via futex_waitv         |
+| `0009-prjc.patch`                      | `_cpusched=bmq/pds`    | Project C base (BMQ/PDS)             |
+| `0009-glitched-bmq.patch`              | `_cpusched=bmq`        | BMQ scheduler (Project C)            |
+| `0012-misc-additions.patch`             | always                 | Miscellaneous additions              |
+| `0013-optimize_harder_O3.patch`         | `_per_cpu_arch`        | O3 + per-CPU-arch optimizations      |
+| `0014-OpenRGB.patch`                    | `_openrgb=true`        | OpenRGB kernel support               |
