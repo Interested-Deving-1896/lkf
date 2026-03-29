@@ -58,6 +58,11 @@ jobs:
     name: tkg patch fetch (6.12)
     runs-on: ubuntu-24.04
 
+    env:
+      # Authenticates GitHub API calls in patches/fetch.sh to avoid the
+      # 60 req/hour anonymous rate limit (raises it to 5000/hour).
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     steps:
       - uses: actions/checkout@v4
 

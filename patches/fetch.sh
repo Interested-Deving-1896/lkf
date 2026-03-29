@@ -50,6 +50,16 @@ fi
 log()  { echo "[fetch] $*"; }
 warn() { echo "[fetch] WARNING: $*" >&2; }
 
+# _curl_auth: wrapper that adds Authorization header when GITHUB_TOKEN is set.
+# Raises the GitHub API rate limit from 60 to 5000 req/hour.
+_curl_auth() {
+    if [[ -n "${GITHUB_TOKEN:-}" ]]; then
+        curl -fsSL --retry 3 -H "Authorization: token ${GITHUB_TOKEN}" "$@"
+    else
+        curl -fsSL --retry 3 "$@"
+    fi
+}
+
 download() {
     local url="$1" dest="$2"
     if [[ -f "$dest" ]]; then
@@ -58,7 +68,7 @@ download() {
     fi
     log "Downloading $(basename "$dest") ..."
     if command -v curl &>/dev/null; then
-        curl -fsSL --retry 3 -o "$dest" "$url"
+        _curl_auth -o "$dest" "$url"
     elif command -v wget &>/dev/null; then
         wget -q --tries=3 -O "$dest" "$url"
     else
@@ -86,7 +96,7 @@ fetch_rt() {
 
     local index
     if command -v curl &>/dev/null; then
-        index=$(curl -fsSL --retry 3 "$base_url" 2>/dev/null || true)
+        index=$(_curl_auth "$base_url" 2>/dev/null || true)
     else
         index=$(wget -q -O- "$base_url" 2>/dev/null || true)
     fi
@@ -145,7 +155,7 @@ fetch_xanmod() {
     log "Fetching XanMod patch list for ${KMAJ}.${KMIN} ..."
 
     local listing
-    listing=$(curl -fsSL --retry 3 "$api_url" 2>/dev/null || true)
+    listing=$(_curl_auth "$api_url" 2>/dev/null || true)
     if [[ -z "$listing" ]]; then
         warn "Could not reach XanMod patch index"
         return 0
@@ -177,7 +187,7 @@ fetch_tkg() {
     log "Fetching linux-tkg patch list for ${branch} ..."
 
     local listing
-    listing=$(curl -fsSL --retry 3 "$api_url" 2>/dev/null || true)
+    listing=$(_curl_auth "$api_url" 2>/dev/null || true)
     if [[ -z "$listing" ]]; then
         warn "Could not reach linux-tkg patch index for ${branch}"
         return 0
@@ -211,7 +221,7 @@ fetch_cachyos() {
     log "Fetching CachyOS patch list for ${KMAJ}.${KMIN} ..."
 
     local listing
-    listing=$(curl -fsSL --retry 3 "$api_url" 2>/dev/null || true)
+    listing=$(_curl_auth "$api_url" 2>/dev/null || true)
     if [[ -z "$listing" ]]; then
         warn "Could not reach CachyOS patch index"
         return 0
