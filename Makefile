@@ -60,6 +60,13 @@ check:
 	@bash tests/test_tkg.sh
 	@bash tests/test_kbuild.sh
 	@bash tests/test_xm.sh
+	@bash tests/test_debug.sh
+	@bash tests/test_dkms.sh
+	@bash tests/test_image.sh
+	@bash tests/test_initrd.sh
+	@bash tests/test_install.sh
+	@bash tests/test_toolchain.sh
+	@bash tests/test_profile.sh
 	@echo "All tests passed."
 
 lint:
