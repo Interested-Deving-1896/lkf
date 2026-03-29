@@ -117,12 +117,14 @@ def emit(prefix, obj):
     elif isinstance(obj, list):
         # Emit space-separated string for simple arrays; skip arrays of tables
         if all(not isinstance(i, dict) for i in obj):
-            print(f"{prefix}={\" \".join(str(i) for i in obj)}")
+            sep = " "
+            print(f"{prefix}={sep.join(str(i) for i in obj)}")
     elif isinstance(obj, bool):
         print(f"{prefix}={1 if obj else 0}")
     else:
         # Escape newlines so each entry is one line
-        print(f"{prefix}={str(obj).replace(chr(10), \" \")}")
+        val = str(obj).replace(chr(10), " ")
+        print(f"{prefix}={val}")
 
 emit("", data)
 '

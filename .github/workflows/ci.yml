@@ -69,7 +69,7 @@ jobs:
             curl ca-certificates jq
 
       - name: Fetch tkg patches for 6.12
-        run: bash patches/fetch.sh --version 6.12 --set tkg --output patches/tkg
+        run: bash patches/fetch.sh --version 6.12 --set tkg --dir patches/tkg
 
       - name: Verify at least one patch was fetched
         run: |

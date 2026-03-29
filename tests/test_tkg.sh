@@ -339,21 +339,20 @@ assert_eq "fetch_tkg constructs correct API URL" "${expected_url}" "${actual_url
 echo ""
 echo "-- TKG_* defaults --"
 
-(
+# Capture subshell output into a variable to avoid pipe (SC2218: functions
+# defined in the outer shell are not visible inside a pipe's right-hand { }).
+defaults=$(
     # shellcheck disable=SC1090
     source "${LKF_ROOT}/core/build.sh" 2>/dev/null || true
-    # Defaults are set at the top of build_main; read them via a no-op parse
     TKG_CPUSCHED="eevdf"; TKG_NTSYNC=0; TKG_FSYNC=1
     TKG_CLEAR=1; TKG_ACS=0; TKG_OPENRGB=0; TKG_O3=0; TKG_ZENIFY=1
     echo "cpusched=${TKG_CPUSCHED} ntsync=${TKG_NTSYNC} fsync=${TKG_FSYNC} clear=${TKG_CLEAR} zenify=${TKG_ZENIFY}"
-) | {
-    read -r defaults
-    assert_contains "default cpusched=eevdf" "cpusched=eevdf" "${defaults}"
-    assert_contains "default fsync=1"        "fsync=1"        "${defaults}"
-    assert_contains "default clear=1"        "clear=1"        "${defaults}"
-    assert_contains "default zenify=1"       "zenify=1"       "${defaults}"
-    assert_contains "default ntsync=0"       "ntsync=0"       "${defaults}"
-}
+)
+assert_contains "default cpusched=eevdf" "cpusched=eevdf" "${defaults}"
+assert_contains "default fsync=1"        "fsync=1"        "${defaults}"
+assert_contains "default clear=1"        "clear=1"        "${defaults}"
+assert_contains "default zenify=1"       "zenify=1"       "${defaults}"
+assert_contains "default ntsync=0"       "ntsync=0"       "${defaults}"
 
 # ── Summary ───────────────────────────────────────────────────────────────────
 echo ""
