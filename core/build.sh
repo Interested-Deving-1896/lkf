@@ -30,7 +30,7 @@ USAGE: lkf build [options]
 
 SOURCE OPTIONS:
   --version, -v <ver>       Kernel version (e.g. 6.12, 6.1.y, v6.12.3)
-  --flavor <name>           Kernel flavor: mainline, xanmod, cachyos, zen, rt, android, custom
+  --flavor <name>           Kernel flavor: mainline, xanmod, cachyos, zen, rt, tkg, android, custom
   --source-dir <path>       Use an existing kernel source tree (skip download)
   --download-dir <path>     Directory for downloaded tarballs [${PWD}/downloads]
 
@@ -52,7 +52,7 @@ CONFIGURATION:
   --target <profile>        Config profile: desktop, server, android, embedded, appliance, debug
 
 PATCHING:
-  --patch-set <name>        Apply a named patch set: aufs, rt, xanmod, cachyos
+  --patch-set <name>        Apply a named patch set: aufs, rt, xanmod, cachyos, tkg
   --patch <file>            Apply an extra patch file (repeatable)
 
 OUTPUT:
@@ -72,6 +72,16 @@ PIPELINE CONTROL:
 MISC:
   --threads, -j <n>         Parallel build jobs [nproc]
   --install-deps            Install build dependencies before building
+
+TKG FLAVOR OPTIONS (only used with --flavor tkg):
+  --tkg-cpusched <sched>    CPU scheduler: bore, eevdf, cfs, bmq, pds [eevdf]
+  --tkg-ntsync              Enable NTsync (Wine/Proton performance)
+  --tkg-no-fsync            Disable Fsync legacy patch
+  --tkg-no-clear            Disable Clear Linux performance patches
+  --tkg-acs                 Enable ACS IOMMU override (GPU passthrough)
+  --tkg-openrgb             Enable OpenRGB kernel support
+  --tkg-o3                  Enable O3 + per-CPU-arch optimizations
+  --tkg-no-zenify           Disable glitched-base (TkG base tweaks)
   --help                    Show this help
 EOF
 }
@@ -86,6 +96,10 @@ build_main() {
     local LKF_SOURCE_DIR="" LKF_THREADS="" LKF_VERIFY_GPG=0 LKF_DISTCLEAN=0
     local LKF_CLEAN_AFTER=0 LKF_REMOVE_AFTER=0 LKF_COPY_SYSTEM_MAP=0
     local LKF_STOP_AFTER="" LKF_TARGET="desktop" LKF_INSTALL_DEPS=0
+    # TKG flavor options (only used when --flavor tkg); exported so patch.sh can read them
+    TKG_CPUSCHED="eevdf" TKG_NTSYNC=0 TKG_FSYNC=1 TKG_CLEAR=1
+    TKG_ACS=0 TKG_OPENRGB=0 TKG_O3=0 TKG_ZENIFY=1
+    export TKG_CPUSCHED TKG_NTSYNC TKG_FSYNC TKG_CLEAR TKG_ACS TKG_OPENRGB TKG_O3 TKG_ZENIFY
 
     # Parse arguments
     while [[ $# -gt 0 ]]; do
@@ -117,6 +131,15 @@ build_main() {
             --verify-gpg)       LKF_VERIFY_GPG=1; shift ;;
             --copy-system-map)  LKF_COPY_SYSTEM_MAP=1; shift ;;
             --install-deps)     LKF_INSTALL_DEPS=1; shift ;;
+            # TKG flavor options
+            --tkg-cpusched)     TKG_CPUSCHED="$2"; shift 2 ;;
+            --tkg-ntsync)       TKG_NTSYNC=1; shift ;;
+            --tkg-no-fsync)     TKG_FSYNC=0; shift ;;
+            --tkg-no-clear)     TKG_CLEAR=0; shift ;;
+            --tkg-acs)          TKG_ACS=1; shift ;;
+            --tkg-openrgb)      TKG_OPENRGB=1; shift ;;
+            --tkg-o3)           TKG_O3=1; shift ;;
+            --tkg-no-zenify)    TKG_ZENIFY=0; shift ;;
             --help|-h)          build_usage; return 0 ;;
             *) lkf_die "Unknown build option: $1" ;;
         esac
@@ -192,8 +215,8 @@ build_stage_download() {
     local base_url tarball
 
     case "${LKF_FLAVOR}" in
-        mainline|zen|rt|cachyos)
-            # Vanilla kernel from kernel.org
+        mainline|zen|rt|cachyos|tkg)
+            # Vanilla kernel from kernel.org (tkg applies patches on top)
             local major="${LKF_KERNEL_VERSION%%.*}"
             tarball="${LKF_DOWNLOAD_DIR}/linux-${LKF_KERNEL_VERSION}.tar.xz"
             base_url="https://cdn.kernel.org/pub/linux/kernel/v${major}.x"
@@ -253,7 +276,14 @@ build_stage_extract() {
 
 build_stage_patch() {
     source "${LKF_ROOT}/core/patch.sh"
-    patch_apply_set "${LKF_SOURCE_DIR}" "${LKF_PATCH_SET}" "${LKF_KERNEL_VERSION}"
+
+    # tkg flavor: use the option-aware tkg patch stack instead of generic apply
+    if [[ "${LKF_FLAVOR}" == "tkg" ]] && [[ -z "${LKF_PATCH_SET}" ]]; then
+        patch_apply_set_tkg "${LKF_SOURCE_DIR}"
+    else
+        patch_apply_set "${LKF_SOURCE_DIR}" "${LKF_PATCH_SET}" "${LKF_KERNEL_VERSION}"
+    fi
+
     for p in "${LKF_PATCHES[@]:-}"; do
         [[ -n "${p}" ]] && patch_apply_file "${LKF_SOURCE_DIR}" "${p}"
     done

@@ -140,6 +140,101 @@ patch_apply_set() {
     lkf_warn "Run 'lkf patch fetch --set ${set_name}' to download it first."
 }
 
+# patch_apply_set_tkg - Apply the linux-tkg patch stack with option awareness.
+#
+# Reads TKG_* variables (set by build_main from remix.toml or CLI flags) to
+# select the correct subset of patches from patches/tkg/.
+#
+# Variables consumed (all optional, sensible defaults):
+#   TKG_CPUSCHED   — bore | cfs | eevdf | bmq | pds | muqss | upds  [eevdf]
+#   TKG_NTSYNC     — 0 | 1  [0]
+#   TKG_FSYNC      — 0 | 1  [1]
+#   TKG_CLEAR      — 0 | 1  [1]
+#   TKG_ACS        — 0 | 1  [0]
+#   TKG_OPENRGB    — 0 | 1  [0]
+#   TKG_O3         — 0 | 1  [0]
+#   TKG_ZENIFY     — 0 | 1  [1]  (glitched-base tweaks)
+patch_apply_set_tkg() {
+    local src_dir="$1"
+    local tkg_dir="${LKF_ROOT}/patches/tkg"
+
+    if [[ ! -d "${tkg_dir}" ]] || [[ -z "$(ls "${tkg_dir}"/*.patch 2>/dev/null)" ]]; then
+        lkf_warn "tkg patches not found in ${tkg_dir}."
+        lkf_warn "Run: lkf patch fetch --version ${LKF_KERNEL_VERSION} --set tkg"
+        return 1
+    fi
+
+    local cpusched="${TKG_CPUSCHED:-eevdf}"
+    local ntsync="${TKG_NTSYNC:-0}"
+    local fsync="${TKG_FSYNC:-1}"
+    local clear="${TKG_CLEAR:-1}"
+    local acs="${TKG_ACS:-0}"
+    local openrgb="${TKG_OPENRGB:-0}"
+    local o3="${TKG_O3:-0}"
+    local zenify="${TKG_ZENIFY:-1}"
+
+    lkf_step "Applying linux-tkg patch stack"
+    lkf_info "  cpusched=${cpusched} ntsync=${ntsync} fsync=${fsync} clear=${clear}"
+    lkf_info "  acs=${acs} openrgb=${openrgb} o3=${o3} zenify=${zenify}"
+
+    # Helper: apply a patch from the tkg dir by glob pattern (first match wins)
+    _tkg_apply() {
+        local pattern="$1"
+        local match
+        # shellcheck disable=SC2086  # intentional glob expansion
+        match=$(ls "${tkg_dir}"/${pattern} 2>/dev/null | sort | head -1)
+        if [[ -n "${match}" ]]; then
+            patch_apply_file "${src_dir}" "${match}"
+        else
+            lkf_warn "tkg: no patch matching '${pattern}' — skipping"
+        fi
+    }
+
+    # ── Always-on patches ────────────────────────────────────────────────────
+    # Base TkG tweaks (mm, sched, net) — the "glitched-base" foundation
+    [[ "${zenify}" -eq 1 ]] && _tkg_apply "0003-glitched-base*.patch"
+
+    # Clear Linux performance patches
+    [[ "${clear}" -eq 1 ]] && _tkg_apply "0002-clear-patches.patch"
+
+    # Misc additions (always safe to apply)
+    _tkg_apply "0012-misc-additions.patch"
+
+    # ── CPU scheduler ────────────────────────────────────────────────────────
+    case "${cpusched}" in
+        bore)
+            _tkg_apply "0001-bore.patch"
+            ;;
+        cfs)
+            _tkg_apply "0003-glitched-cfs.patch"
+            ;;
+        eevdf)
+            _tkg_apply "0003-glitched-eevdf-additions.patch"
+            ;;
+        pds)
+            _tkg_apply "0009-prjc.patch"
+            _tkg_apply "0005-glitched-pds.patch"
+            ;;
+        bmq)
+            _tkg_apply "0009-prjc.patch"
+            _tkg_apply "0009-glitched-bmq.patch"
+            ;;
+        muqss|upds)
+            lkf_warn "tkg: ${cpusched} scheduler not available for kernel >= 6.0; falling back to eevdf"
+            _tkg_apply "0003-glitched-eevdf-additions.patch"
+            ;;
+    esac
+
+    # ── Optional patches ─────────────────────────────────────────────────────
+    [[ "${ntsync}" -eq 1 ]]  && _tkg_apply "0007-*ntsync*.patch"
+    [[ "${fsync}"  -eq 1 ]]  && _tkg_apply "0007-*fsync*.patch"
+    [[ "${acs}"    -eq 1 ]]  && _tkg_apply "0006-add-acs-overrides_iommu.patch"
+    [[ "${openrgb}" -eq 1 ]] && _tkg_apply "0014-OpenRGB.patch"
+    [[ "${o3}"     -eq 1 ]]  && _tkg_apply "0013-optimize_harder_O3.patch"
+
+    lkf_info "tkg patch stack applied."
+}
+
 patch_apply_file() {
     local src_dir="$1" patch_file="$2"
     [[ -z "${patch_file}" || ! -f "${patch_file}" ]] && {
