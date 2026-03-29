@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install test dependencies
         run: |
@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install ShellCheck
         run: sudo apt-get install -y --no-install-recommends shellcheck
@@ -43,7 +43,7 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Verify remix.toml parses cleanly
         # Run through the real lkf.sh entry point so the full module-load
@@ -60,7 +60,7 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install fetch dependencies
         run: |
@@ -69,7 +69,8 @@ jobs:
             curl ca-certificates jq
 
       - name: Fetch tkg patches for 6.12
-        run: bash patches/fetch.sh --version 6.12 --set tkg --output patches/tkg
+        # --dir sets PATCHES_DIR; fetch_tkg saves into ${PATCHES_DIR}/tkg/
+        run: bash patches/fetch.sh --version 6.12 --set tkg --dir patches
 
       - name: Verify at least one patch was fetched
         run: |

@@ -3,7 +3,7 @@
 # Profiles are TOML-like config files stored in ~/.config/lkf/profiles/
 # or ${LKF_ROOT}/profiles/
 
-LKF_PROFILE_DIR="${HOME}/.config/lkf/profiles"
+LKF_PROFILE_DIR="${LKF_PROFILE_DIR:-${HOME}/.config/lkf/profiles}"
 LKF_BUILTIN_PROFILE_DIR="${LKF_ROOT}/profiles"
 
 profile_usage() {

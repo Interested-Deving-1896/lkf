@@ -26,9 +26,13 @@
 set -euo pipefail
 
 LKF_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# shellcheck disable=SC1090
 source "${LKF_ROOT}/core/lib.sh"
+# shellcheck disable=SC1090
 source "${LKF_ROOT}/core/detect.sh"
+# shellcheck disable=SC1090
 source "${LKF_ROOT}/core/remix.sh"
+# shellcheck disable=SC1090
 source "${LKF_ROOT}/core/patch.sh"
 
 pass=0; fail=0
@@ -192,6 +196,7 @@ export TKG_CPUSCHED TKG_NTSYNC TKG_FSYNC TKG_CLEAR TKG_ACS TKG_OPENRGB TKG_O3 TK
 APPLIED_PATCHES=()
 TKG_CPUSCHED="bore" TKG_NTSYNC=0 TKG_FSYNC=0 TKG_CLEAR=0
 TKG_ACS=0 TKG_OPENRGB=0 TKG_O3=0 TKG_ZENIFY=0
+# shellcheck disable=SC2218  # defined via source "${LKF_ROOT}/core/patch.sh" above
 patch_apply_set_tkg "${FAKE_SRC}" 2>/dev/null
 applied="${APPLIED_PATCHES[*]:-}"
 assert_contains     "bore: 0001-bore.patch applied"     "0001-bore.patch"  "${applied}"
@@ -202,6 +207,7 @@ assert_not_contains "bore: no prjc patch"               "0009-prjc"        "${ap
 APPLIED_PATCHES=()
 TKG_CPUSCHED="eevdf" TKG_NTSYNC=0 TKG_FSYNC=0 TKG_CLEAR=0
 TKG_ACS=0 TKG_OPENRGB=0 TKG_O3=0 TKG_ZENIFY=0
+# shellcheck disable=SC2218  # defined via source "${LKF_ROOT}/core/patch.sh" above
 patch_apply_set_tkg "${FAKE_SRC}" 2>/dev/null
 applied="${APPLIED_PATCHES[*]:-}"
 assert_contains     "eevdf: eevdf-additions applied"    "eevdf-additions"  "${applied}"
@@ -211,6 +217,7 @@ assert_not_contains "eevdf: no bore patch"              "0001-bore"        "${ap
 APPLIED_PATCHES=()
 TKG_CPUSCHED="bmq" TKG_NTSYNC=0 TKG_FSYNC=0 TKG_CLEAR=0
 TKG_ACS=0 TKG_OPENRGB=0 TKG_O3=0 TKG_ZENIFY=0
+# shellcheck disable=SC2218  # defined via source "${LKF_ROOT}/core/patch.sh" above
 patch_apply_set_tkg "${FAKE_SRC}" 2>/dev/null
 applied="${APPLIED_PATCHES[*]:-}"
 assert_contains "bmq: 0009-prjc.patch applied"         "0009-prjc.patch"         "${applied}"
@@ -339,21 +346,20 @@ assert_eq "fetch_tkg constructs correct API URL" "${expected_url}" "${actual_url
 echo ""
 echo "-- TKG_* defaults --"
 
-(
+# Capture subshell output into a variable to avoid pipe (SC2218: functions
+# defined in the outer shell are not visible inside a pipe's right-hand { }).
+defaults=$(
     # shellcheck disable=SC1090
     source "${LKF_ROOT}/core/build.sh" 2>/dev/null || true
-    # Defaults are set at the top of build_main; read them via a no-op parse
     TKG_CPUSCHED="eevdf"; TKG_NTSYNC=0; TKG_FSYNC=1
     TKG_CLEAR=1; TKG_ACS=0; TKG_OPENRGB=0; TKG_O3=0; TKG_ZENIFY=1
     echo "cpusched=${TKG_CPUSCHED} ntsync=${TKG_NTSYNC} fsync=${TKG_FSYNC} clear=${TKG_CLEAR} zenify=${TKG_ZENIFY}"
-) | {
-    read -r defaults
-    assert_contains "default cpusched=eevdf" "cpusched=eevdf" "${defaults}"
-    assert_contains "default fsync=1"        "fsync=1"        "${defaults}"
-    assert_contains "default clear=1"        "clear=1"        "${defaults}"
-    assert_contains "default zenify=1"       "zenify=1"       "${defaults}"
-    assert_contains "default ntsync=0"       "ntsync=0"       "${defaults}"
-}
+)
+assert_contains "default cpusched=eevdf" "cpusched=eevdf" "${defaults}"
+assert_contains "default fsync=1"        "fsync=1"        "${defaults}"
+assert_contains "default clear=1"        "clear=1"        "${defaults}"
+assert_contains "default zenify=1"       "zenify=1"       "${defaults}"
+assert_contains "default ntsync=0"       "ntsync=0"       "${defaults}"
 
 # ── Summary ───────────────────────────────────────────────────────────────────
 echo ""

@@ -176,11 +176,17 @@ else
     echo ""
     echo "-- extract_validate_elf --"
 
+    # Run in subshells: extract_validate_elf calls lkf_die (exit 1) on failure,
+    # which would abort the suite if called directly.
     assert_exits_nonzero "validate_elf: non-ELF exits non-zero" \
-        extract_validate_elf "${FAKE_TEXT}"
+        bash -c "source '${LKF_ROOT}/core/lib.sh'; source '${LKF_ROOT}/core/detect.sh'; \
+                 source '${LKF_ROOT}/core/extract.sh'; \
+                 extract_validate_elf '${FAKE_TEXT}'"
 
     assert_exits_zero "validate_elf: real ELF exits 0" \
-        extract_validate_elf "${REAL_ELF}"
+        bash -c "source '${LKF_ROOT}/core/lib.sh'; source '${LKF_ROOT}/core/detect.sh'; \
+                 source '${LKF_ROOT}/core/extract.sh'; \
+                 extract_validate_elf '${REAL_ELF}'"
 fi
 
 # ── 16: vmlinuz fallback when no decompressor matches ────────────────────────
