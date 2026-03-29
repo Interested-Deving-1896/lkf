@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Test suite
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install test dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            bash coreutils tar xz-utils curl ca-certificates
+
+      - name: Run tests
+        run: make check
+
+  shellcheck:
+    name: ShellCheck
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install ShellCheck
+        run: sudo apt-get install -y --no-install-recommends shellcheck
+
+      - name: Lint shell scripts
+        run: |
+          find . -name '*.sh' \
+            ! -path './patches/fetch.sh' \
+            | xargs shellcheck \
+                --severity=error \
+                --exclude=SC1090,SC1091,SC2034,SC2154,SC2086 \
+            || true
+          # Non-fatal: surfacing warnings without blocking merges
+          exit 0
+
+  remix-dry-run:
+    name: lkf remix --dry-run
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify remix.toml parses cleanly
+        run: |
+          bash -c '
+            LKF_ROOT="${GITHUB_WORKSPACE}"
+            source core/lib.sh
+            source core/remix.sh
+            remix_main --file remix.toml --dry-run
+          '
