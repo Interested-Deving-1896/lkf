@@ -26,9 +26,13 @@
 set -euo pipefail
 
 LKF_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# shellcheck disable=SC1090
 source "${LKF_ROOT}/core/lib.sh"
+# shellcheck disable=SC1090
 source "${LKF_ROOT}/core/detect.sh"
+# shellcheck disable=SC1090
 source "${LKF_ROOT}/core/remix.sh"
+# shellcheck disable=SC1090
 source "${LKF_ROOT}/core/patch.sh"
 
 pass=0; fail=0
@@ -192,6 +196,7 @@ export TKG_CPUSCHED TKG_NTSYNC TKG_FSYNC TKG_CLEAR TKG_ACS TKG_OPENRGB TKG_O3 TK
 APPLIED_PATCHES=()
 TKG_CPUSCHED="bore" TKG_NTSYNC=0 TKG_FSYNC=0 TKG_CLEAR=0
 TKG_ACS=0 TKG_OPENRGB=0 TKG_O3=0 TKG_ZENIFY=0
+# shellcheck disable=SC2218  # defined via source "${LKF_ROOT}/core/patch.sh" above
 patch_apply_set_tkg "${FAKE_SRC}" 2>/dev/null
 applied="${APPLIED_PATCHES[*]:-}"
 assert_contains     "bore: 0001-bore.patch applied"     "0001-bore.patch"  "${applied}"
@@ -202,6 +207,7 @@ assert_not_contains "bore: no prjc patch"               "0009-prjc"        "${ap
 APPLIED_PATCHES=()
 TKG_CPUSCHED="eevdf" TKG_NTSYNC=0 TKG_FSYNC=0 TKG_CLEAR=0
 TKG_ACS=0 TKG_OPENRGB=0 TKG_O3=0 TKG_ZENIFY=0
+# shellcheck disable=SC2218  # defined via source "${LKF_ROOT}/core/patch.sh" above
 patch_apply_set_tkg "${FAKE_SRC}" 2>/dev/null
 applied="${APPLIED_PATCHES[*]:-}"
 assert_contains     "eevdf: eevdf-additions applied"    "eevdf-additions"  "${applied}"
@@ -211,6 +217,7 @@ assert_not_contains "eevdf: no bore patch"              "0001-bore"        "${ap
 APPLIED_PATCHES=()
 TKG_CPUSCHED="bmq" TKG_NTSYNC=0 TKG_FSYNC=0 TKG_CLEAR=0
 TKG_ACS=0 TKG_OPENRGB=0 TKG_O3=0 TKG_ZENIFY=0
+# shellcheck disable=SC2218  # defined via source "${LKF_ROOT}/core/patch.sh" above
 patch_apply_set_tkg "${FAKE_SRC}" 2>/dev/null
 applied="${APPLIED_PATCHES[*]:-}"
 assert_contains "bmq: 0009-prjc.patch applied"         "0009-prjc.patch"         "${applied}"
