@@ -121,25 +121,26 @@ ${FAKE_BIN}
 dir: /custom-dir
 EOF
 
+    # Run in a subshell so lkf_die / set -e failures don't abort the suite.
     # xz compression
     XZ_OUT="${TMPDIR_TEST}/initrd.cpio.xz"
-    initrd_build_from_config "${INITRD_CONF}" "${XZ_OUT}" "xz" 2>/dev/null
+    (initrd_build_from_config "${INITRD_CONF}" "${XZ_OUT}" "xz") 2>/dev/null || true
     assert_file_exists "build_from_config: xz output created" "${XZ_OUT}"
 
     # Verify essential dirs are in the cpio
-    cpio_contents=$(xz -dc "${XZ_OUT}" | cpio -t 2>/dev/null)
+    cpio_contents=$(xz -dc "${XZ_OUT}" | cpio -t 2>/dev/null || true)
     assert_contains "build_from_config: proc dir present" "proc" "${cpio_contents}"
     assert_contains "build_from_config: sys dir present"  "sys"  "${cpio_contents}"
     assert_contains "build_from_config: dev dir present"  "dev"  "${cpio_contents}"
 
     # gzip compression
     GZ_OUT="${TMPDIR_TEST}/initrd.cpio.gz"
-    initrd_build_from_config "${INITRD_CONF}" "${GZ_OUT}" "gzip" 2>/dev/null
+    (initrd_build_from_config "${INITRD_CONF}" "${GZ_OUT}" "gzip") 2>/dev/null || true
     assert_file_exists "build_from_config: gzip output created" "${GZ_OUT}"
 
     # none (raw cpio)
     CPIO_OUT="${TMPDIR_TEST}/initrd.cpio"
-    initrd_build_from_config "${INITRD_CONF}" "${CPIO_OUT}" "none" 2>/dev/null
+    (initrd_build_from_config "${INITRD_CONF}" "${CPIO_OUT}" "none") 2>/dev/null || true
     assert_file_exists "build_from_config: raw cpio output created" "${CPIO_OUT}"
 fi
 
