@@ -3,7 +3,7 @@
 ## Getting started
 
 ```sh
-git clone https://github.com/Interested-Deving-1896/lkf
+git clone https://gitlab.com/OSPF1896/lkf
 cd lkf
 make check   # run the test suite before making changes
 ```
