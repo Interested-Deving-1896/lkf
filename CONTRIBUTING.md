@@ -3,7 +3,7 @@
 ## Getting started
 
 ```sh
-git clone https://gitlab.com/OSPF1896/lkf
+git clone https://gitlab.com/openos-project/linux-kernel_filesystem_deving/lkf
 cd lkf
 make check   # run the test suite before making changes
 ```

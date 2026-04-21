@@ -89,4 +89,4 @@ x86_64, aarch64, arm, riscv64
 
 ---
 
-[0.1.0]: https://gitlab.com/OSPF1896/lkf/releases/tag/v0.1.0
+[0.1.0]: https://gitlab.com/openos-project/linux-kernel_filesystem_deving/lkf/releases/tag/v0.1.0
