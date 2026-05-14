@@ -486,3 +486,22 @@ itself is released under GPL-2.0.
 
 See `tools/kdress/README.md` and `tools/unzboot/README.md` for the licenses
 of those optional compiled tools.
+
+## Origins
+
+lkf consolidates patterns from 15 upstream kernel tooling projects:
+- [ghazzor/Xanmod-Kernel-Builder](https://github.com/ghazzor/Xanmod-Kernel-Builder) — Clang/LLVM CI workflow, LTO config patterns
+- [kodx/symlink-initrd-kernel-in-root](https://github.com/kodx/symlink-initrd-kernel-in-root) — `/vmlinuz` + `/initrd.img` symlink management
+- [rawdaGastan/go-extract-vmlinux](https://github.com/rawdaGastan/go-extract-vmlinux) — vmlinux/vmlinuz extraction logic
+- [elfmaster/kdress](https://github.com/elfmaster/kdress) — vmlinuz → debuggable vmlinux with full ELF symbol table
+- [eballetbo/unzboot](https://github.com/eballetbo/unzboot) — EFI zboot ARM64 kernel extraction
+- [Biswa96/android-kernel-builder](https://github.com/Biswa96/android-kernel-builder) — Android cross-compile pipeline
+- [AlexanderARodin/LinuxComponentsBuilder](https://github.com/AlexanderARodin/LinuxComponentsBuilder) — kernel + initrd + rootfs + squash pipeline
+- [osresearch/linux-builder](https://github.com/osresearch/linux-builder) — appliance/firmware kernel, unified EFI image
+- [tsirysndr/vmlinux-builder](https://github.com/tsirysndr/vmlinux-builder) — multi-arch CI, version normalization
+- [rizalmart/puppy-linux-kernel-maker](https://github.com/rizalmart/puppy-linux-kernel-maker) — AUFS patch workflow, firmware driver packaging
+- [deepseagirl/easylkb](https://github.com/deepseagirl/easylkb) — QEMU+GDB debug environment
+- [limitcool/xm](https://github.com/limitcool/xm) — cross-compile manager concept
+- [masahir0y/kbuild_skeleton](https://github.com/masahir0y/kbuild_skeleton) — Kbuild/Kconfig standalone template
+- [h0tc0d3/kbuild](https://github.com/h0tc0d3/kbuild) — flexible CLI flags, DKMS integration, GPG verification
+- [WangNan0/kbuild-standalone](https://github.com/WangNan0/kbuild-standalone) — standalone kconfig/kbuild as a library
