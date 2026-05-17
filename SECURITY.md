@@ -13,7 +13,7 @@ Only the latest release is supported with security fixes.
 **Do not open a public issue for security vulnerabilities.**
 
 Report privately via GitHub's built-in mechanism:
-[Report a vulnerability](https://github.com/Interested-Deving-1896/lkf/security/advisories/new)
+[Report a vulnerability](https://gitlab.com/openos-project/linux-kernel_filesystem_deving/lkf/security/advisories/new)
 
 Include:
 - A description of the vulnerability and its impact
