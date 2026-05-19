@@ -27,7 +27,7 @@ jobs:
             python3-setuptools python3-wheel python3-venv \
             python3-dev libffi-dev libgmp-dev libbz2-dev liblzma-dev \
             libcap-dev libgcrypt20-dev libgmpxx4ldbl libgmp-dev \
-            libstdc++-dev  # Added missing dependency for C++ standard library
+            libstdc++-dev libstdc++-12-dev  # Added missing dependency for C++ standard library
 
       - name: Ensure make is installed
         run: sudo apt-get install -y make  # Ensure make is installed
