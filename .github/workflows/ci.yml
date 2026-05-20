@@ -29,7 +29,7 @@ jobs:
             libcap-dev libgcrypt20-dev libgmpxx4ldbl libgmp-dev \
             libstdc++-dev libstdc++-12-dev \
             libgmp-dev \
-            libglib2.0-dev libgmp-dev  # Added missing dependencies for gmp and glib
+            libglib2.0-dev libglib2.0-dev libgmp-dev libgmp-dev  # Added missing dependencies for gmp and glib
 
       - name: Ensure make is installed
         run: sudo apt-get install -y make  # Ensure make is installed
