@@ -28,7 +28,8 @@ jobs:
             python3-dev libffi-dev libgmp-dev libbz2-dev liblzma-dev \
             libcap-dev libgcrypt20-dev libgmpxx4ldbl libgmp-dev \
             libstdc++-dev libstdc++-12-dev \
-            libgmp-dev  # Added missing dependency for gmp
+            libgmp-dev \
+            libglib2.0-dev libgmp-dev  # Added missing dependencies for gmp and glib
 
       - name: Ensure make is installed
         run: sudo apt-get install -y make  # Ensure make is installed
