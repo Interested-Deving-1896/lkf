@@ -4,37 +4,29 @@
 [![Built with Ona](https://ona.com/build-with-ona.svg)](https://app.ona.com/#https://github.com/Interested-Deving-1896/lkf)
 
 <!-- AI:start:what-it-does -->
-This project provides a Linux Kernel Framework (LKF) that is both distribution-agnostic and architecture-agnostic. It enables developers and system integrators to build, compile, customize, and redistribute Linux kernels. It is designed for users who need a flexible and modular approach to kernel development, including tasks like ricing, patching, and creating custom kernel distributions.
+This project provides a Linux Kernel Framework (LKF) that is both distro-agnostic and architecture-agnostic. It enables users to build, compile, customize, and redistribute Linux kernels, supporting tasks like kernel development, ricing, and remixing. It is designed for developers, system integrators, and advanced users who require flexible kernel management across diverse environments.
 <!-- AI:end:what-it-does -->
 
 ## Architecture
 
 <!-- AI:start:architecture -->
-The Linux Kernel Framework (LKF) consists of modular components designed to support kernel development, customization, and redistribution. The framework is implemented primarily in shell scripts and includes optional C-based tools. Key components include:
+The Linux Kernel Framework (LKF) is structured to support modular kernel development, customization, and distribution. The framework consists of several key components:
 
-- **Core**: Contains essential scripts and modules for kernel operations.
-- **Config**: Stores configuration files for kernel builds.
-- **Profiles**: Provides predefined kernel profiles for customization.
-- **Patches**: Includes patch files for kernel modifications.
+- **Core**: Contains essential scripts and modules for kernel building and management.
+- **Config**: Stores configuration templates for various kernel setups.
+- **Profiles**: Includes predefined kernel profiles for different use cases.
+- **Patches**: Provides patch files for kernel customization.
 - **Examples**: Offers example configurations and workflows.
-- **Tools**: Hosts optional utilities like `kdress` and `unzboot` for additional functionality.
+- **Tools**: Optional utilities such as `kdress` and `unzboot` for advanced kernel operations.
 - **Nix**: Contains Nix environment files for reproducible builds.
+- **Scripts**: General-purpose scripts for automation and auxiliary tasks.
+- **Tests**: Includes self-tests to validate framework functionality.
 
-The `Makefile` defines targets for installation, uninstallation, testing, and building optional tools. The `lkf.sh` script serves as the main entry point, with a wrapper script installed to simplify execution. The directory structure is as follows:
+The `Makefile` defines targets for installation, uninstallation, testing, and building optional tools. The `lkf.sh` script serves as the main entry point, with a wrapper script ensuring portability by setting the `LKF_ROOT` environment variable.
 
+Directory structure:
 ```plaintext
 .
-├── .devcontainer
-├── .editorconfig
-├── .github
-├── .gitignore
-├── .gitlab-ci.yml
-├── CHANGELOG.md
-├── CONTRIBUTING.md
-├── LICENSE
-├── Makefile
-├── README.md
-├── SECURITY.md
 ├── ci
 ├── config
 ├── core
@@ -43,7 +35,7 @@ The `Makefile` defines targets for installation, uninstallation, testing, and bu
 ├── nix
 ├── patches
 ├── profiles
-├── remix.toml
+├── scripts
 ├── tests
 └── tools
 ```
