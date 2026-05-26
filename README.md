@@ -125,5 +125,5 @@ _Original project — no upstream fork._
 ## License
 
 <!-- AI:start:license -->
-[GPL-2.0](https://github.com/Interested-Deving-1896/lkf/blob/main/LICENSE) © 2026 [Interested-Deving-1896](https://github.com/Interested-Deving-1896)
+<!-- License not detected — add a LICENSE file to this repo. -->
 <!-- AI:end:license -->
