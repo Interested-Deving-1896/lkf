@@ -136,6 +136,9 @@ jobs:
       - name: Install pytest
         run: pip install pytest --quiet
 
+      - name: Set up tests directory
+        run: mkdir -p tests
+
       - name: Run tests
         run: python3 -m pytest tests/ -v --tb=short
 
