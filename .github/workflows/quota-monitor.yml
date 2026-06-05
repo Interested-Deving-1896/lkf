@@ -117,7 +117,7 @@ jobs:
 
       - name: Monitor quota / watch run
         env:
-          GH_TOKEN:             ${{ secrets.SYNC_TOKEN }}
+          GH_TOKEN:             ${{ secrets.SYNC_TOKEN || '' }}
           GITHUB_OWNER:         Interested-Deving-1896
           GITHUB_REPO:          fork-sync-all
           MODE:                 ${{ inputs.mode || 'quota' }}
