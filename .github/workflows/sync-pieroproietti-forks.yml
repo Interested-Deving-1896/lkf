@@ -40,4 +40,4 @@ jobs:
           GH_TOKEN: ${{ secrets.SYNC_TOKEN }}
           GITHUB_OWNER: ${{ github.repository_owner }}
           UPSTREAM_USER: Interested-Deving-1896
-        run: bash scripts/sync-Interested-Deving-1896-forks.sh
+        run: bash ./scripts/sync-Interested-Deving-1896-forks.sh
