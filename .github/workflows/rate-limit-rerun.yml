@@ -37,6 +37,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
+      - name: Ensure required scripts are present
+        run: |
+          if [ ! -f scripts/rl-manifest-to-md.py ]; then
+            echo "Error: Required script 'rl-manifest-to-md.py' not found."
+            exit 1
+          fi
+
       - name: Scan for rate-limit failures
         id: scan
         env:
