@@ -1,7 +1,8 @@
 [update-readmes]   Mode: rewrite — migrating to template structure...
 # lkf
 
-[![Built with Ona](https://ona.com/build-with-ona.svg)](https://app.ona.com/#https://github.com/Interested-Deving-1896/lkf)
+[![Built with Ona](https://ona.com/build-with-ona.svg)](https://app.ona.com/#https://github.com/Interested-Deving-1896/lkf) [![KDE Eco](https://img.shields.io/badge/KDE%20Eco-certified-brightgreen?logo=kde&logoColor=white&style=flat-square)](https://eco.kde.org/) [![Blue Angel](https://img.shields.io/badge/Blue%20Angel-DE--UZ%20215-0055a4?style=flat-square)](https://www.blauer-engel.de/en/certification/criteria) [![Energy](https://api.green-coding.io/v1/ci/badge/get?repo=Interested-Deving-1896%2Flkf&branch=main&workflow=eco-audit.yml)](https://metrics.green-coding.io/ci-index.html)
+
 
 <!-- AI:start:what-it-does -->
 This project provides a Linux Kernel Framework (LKF) that is both distribution-agnostic and architecture-agnostic. It enables developers and system integrators to build, compile, customize, and redistribute Linux kernels. It is designed for users who need a flexible and modular approach to kernel development, including tasks like ricing, patching, and creating custom kernel distributions.
@@ -71,19 +72,19 @@ cd lkf
 <!-- AI:start:ci -->
 The repository uses GitHub Actions for continuous integration and automation. The following workflows are defined:
 
-1. **ci.yml**  
-   - Runs linting, builds the project, and executes tests.  
-   - Trigger: On pull requests and pushes to the `main` branch.  
+1. **ci.yml**
+   - Runs linting, builds the project, and executes tests.
+   - Trigger: On pull requests and pushes to the `main` branch.
    - No secrets required.
 
-2. **mirror-osp-to-ooc.yaml**  
-   - Mirrors the repository from an open-source platform to an organizational repository.  
-   - Trigger: Manual dispatch or scheduled runs.  
+2. **mirror-osp-to-ooc.yaml**
+   - Mirrors the repository from an open-source platform to an organizational repository.
+   - Trigger: Manual dispatch or scheduled runs.
    - Required secrets: `OOC_REPO_TOKEN` (access token for the organizational repository).
 
-3. **trigger-artifact-mirror.yml**  
-   - Triggers artifact mirroring to external storage or repositories.  
-   - Trigger: Manual dispatch.  
+3. **trigger-artifact-mirror.yml**
+   - Triggers artifact mirroring to external storage or repositories.
+   - Trigger: Manual dispatch.
    - Required secrets: `ARTIFACT_STORAGE_KEY` (key for external storage access).
 <!-- AI:end:ci -->
 
@@ -104,8 +105,8 @@ Direct commits to OSP or OOC are detected and opened as PRs back to `Interested-
 ## Contributors
 
 <!-- AI:start:contributors -->
-- [@Interested-Deving-1896](https://github.com/Interested-Deving-1896): 6 commits  
-- [@dependabot[bot]](https://github.com/dependabot[bot]): 1 commit  
+- [@Interested-Deving-1896](https://github.com/Interested-Deving-1896): 6 commits
+- [@dependabot[bot]](https://github.com/dependabot[bot]): 1 commit
 <!-- AI:end:contributors -->
 
 ## Origins
@@ -119,6 +120,20 @@ _Original project — no upstream fork._
 <!-- AI:start:resources -->
 _No additional resource files found._
 <!-- AI:end:resources -->
+
+<!-- AI:start:accessibility -->
+This repo uses automated accessibility auditing via `check-accessibility.yml`.
+
+Checks include: CODEOWNERS ownership coverage, README screen-reader compatibility,
+WCAG 2.1 AA HTML compliance, audio overview (espeak-ng), and Braille output (liblouis).
+
+
+
+
+Run the [Check Accessibility](https://github.com/Interested-Deving-1896/lkf/actions/workflows/check-accessibility.yml)
+workflow to generate the first report and accessibility artifacts.
+See [DOCS/accessibility.md](https://github.com/Interested-Deving-1896/lkf/blob/main/DOCS/accessibility.md) for the full reference.
+<!-- AI:end:accessibility -->
 
 ## License
 
