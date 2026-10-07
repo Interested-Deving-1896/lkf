@@ -107,7 +107,7 @@ Direct commits to OSP or OOC are detected and opened as PRs back to `Interested-
 
 <!-- AI:start:contributors -->
 - [@Interested-Deving-1896](https://github.com/Interested-Deving-1896): 6 commits
-- [@dependabot[bot]](https://github.com/dependabot[bot]): 1 commit
+- [@dependabot[bot]](https://github.com/apps/dependabot): 1 commit
 <!-- AI:end:contributors -->
 
 ## Origins
@@ -135,7 +135,8 @@ WCAG 2.1 AA HTML compliance, audio overview (espeak-ng), and Braille output (lib
 
 Run the [Check Accessibility](https://github.com/Interested-Deving-1896/lkf/actions/workflows/check-accessibility.yml)
 workflow to generate the first report and accessibility artifacts.
-See [DOCS/accessibility.md](https://github.com/Interested-Deving-1896/lkf/blob/main/DOCS/accessibility.md) for the full reference.
+See the [W3C Web Content Accessibility Guidelines (WCAG)](https://www.w3.org/WAI/standards-guidelines/wcag/)
+for the underlying accessibility reference.
 <!-- AI:end:accessibility -->
 
 ## License
